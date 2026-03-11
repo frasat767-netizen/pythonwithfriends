@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Python With Friends | Professional Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --accent: #4f46e5;
+            --bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --card-bg: #ffffff;
+            --border: #f1f5f9;
+            --header-bg: rgba(248, 250, 252, 0.8);
+            --input-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --bg: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --header-bg: rgba(15, 23, 42, 0.8);
+            --input-bg: #020617;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sidebar {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+        }
+
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+
+        .topic-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .topic-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgb(0 0 0 / 0.05);
+        }
+
+        .terminal {
+            background: #020617;
+            border: 1px solid #334155;
+            color: #4ade80;
+        }
+
+        .mobile-nav {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .lesson-container {
+            color: var(--text-main);
+        }
+
+        .lesson-container h3 {
+            color: var(--accent);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .detail-box {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 1rem 1rem 0;
+        }
+    </style>
+</head>
+
+<body class="pb-28">
+
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar closed fixed inset-0 lg:w-80 overflow-y-auto">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-10">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-code text-xs"></i>
+                    </div>
+                    <h2 class="text-xl font-extrabold">Full Syllabus</h2>
+                </div>
+                <button onclick="toggleSidebar()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <nav id="nav-container" class="space-y-1 pb-12"></nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="">
+        <header class="sticky top-0 z-40 backdrop-blur-md px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()"
+                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"><i
+                        class="fas fa-list-ul"></i></button>
+                <a href="index.html"><h1 class="text-xl font-extrabold cursor-pointer" onclick="goHome()">
+                    Python<span class="text-indigo-600">With Friends</span>
+                </h1></a>
+            </div>
+            <div id="engine-status"
+                class="text-[10px] font-bold px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center gap-2">
+                <div id="status-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                <span id="status-text">Engine Loading...</span>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto p-6 md:p-10 min-h-screen">
+            <!-- Home Screen -->
+            <div id="home-screen" class="page-section active">
+                <div
+                    class="bg-indigo-600 rounded-[2rem] p-8 md:p-12 text-white mb-10 shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">Master Python <br>Zero to Pro
+                        </h2>
+                        <p class="text-indigo-100 mb-8 font-medium max-w-md opacity-90">Mukammal course jo aapko
+                            beginner se advanced level tak lekar jayega.</p>
+                        <button onclick="loadContent('variables')"
+                            class="bg-white text-indigo-600 px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">Start
+                            Learning Now</button>
+                    </div>
+                    <i class="fab fa-python absolute -right-10 -bottom-10 text-[200px] opacity-10 rotate-12"></i>
+                </div>
+
+                <h3 class="text-lg font-bold mb-6 flex items-center gap-2 opacity-80 uppercase tracking-widest">
+                    <i class="fas fa-stream text-indigo-600"></i> Course Modules
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="home-grid"></div>
+            </div>
+
+            <!-- Lesson Screen -->
+            <div id="lesson-screen" class="page-section">
+                <div id="lesson-body" class="mb-10 lesson-container prose dark:prose-invert max-w-none"></div>
+                <div
+                    class="p-8 bg-indigo-50/50 dark:bg-slate-800/50 rounded-3xl border border-indigo-100 dark:border-slate-700">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">Practice is the Key!</h4>
+                            <p class="text-sm opacity-70">Uper diya gaya har code block Playground mein run kiya ja
+                                sakta hai.</p>
+                        </div>
+                        <button onclick="openEditorFromLesson()"
+                            class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-terminal text-xs"></i> Open Playground
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Screen -->
+            <div id="editor-screen" class="page-section">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-black mb-2">Code <span class="text-indigo-600">Playground</span></h2>
+                    <p class="text-sm text-slate-500 font-medium">Yahan aap apna live Python code likh kar foran result
+                        dekh sakte hain.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div
+                        class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <span class="text-xs font-bold ml-2 opacity-60">script.py</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="clearEditor()"
+                                class="btn-secondary px-4 py-2 rounded-xl text-xs font-bold transition-colors">Clear</button>
+                            <button onclick="runGlobalCode()"
+                                class="bg-indigo-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg active:scale-95 transition-all">Run
+                                Code</button>
+                        </div>
+                    </div>
+                    <textarea id="global-code-editor"
+                        class="w-full h-80 bg-slate-900 text-indigo-100 p-6 code-font text-base rounded-2xl outline-none resize-none shadow-2xl"
+                        spellcheck="false" placeholder="# Write your python code..."></textarea>
+
+                    <div class="mt-6">
+                        <div class="flex items-center gap-2 mb-3 opacity-60">
+                            <i class="fas fa-terminal text-xs"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Output Window</span>
+                        </div>
+                        <div id="global-output"
+                            class="terminal p-6 min-h-[140px] code-font text-sm whitespace-pre-wrap shadow-inner overflow-y-auto rounded-2xl">
+                            Output will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div class="fixed bottom-0 left-0 right-0 mobile-nav px-8 py-4 flex justify-between items-center z-50">
+        <button onclick="goHome()" id="nav-home" class="nav-btn flex flex-col items-center gap-1 text-indigo-600">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button onclick="toggleSidebar()" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
+            <i class="fas fa-list text-xl"></i>
+            <span class="text-[10px] font-bold">Syllabus</span>
+        </button>
+        <button onclick="openEditor()" id="nav-editor" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
+            <i class="fas fa-terminal text-xl"></i>
+            <span class="text-[10px] font-bold">Code</span>
+        </button>
+        <button onclick="toggleTheme()" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
+            <i id="theme-icon" class="fas fa-moon text-xl"></i>
+            <span id="theme-text" class="text-[10px] font-bold">Dark</span>
+        </button>
+    </div>
+
+    <script>
+        const topics = {
+            // ---------------------------------------------------------
+            // 🔰 MODULE 1: BASICS (Foundation)
+            // ---------------------------------------------------------
+            basics_intro: {
+                group: "🔰 Basics",
+                title: "Variables & Rules",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Variables & Naming Rules 📦</h3>
+                    <p class="mb-4">Variable computer ki memory mein ek dabay (box) ki tarah hota hai jisme hum apna data store karte hain.</p>
+                    
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">1. Variable Naming Rules:</h4>
+                        <ul class="list-disc ml-5 space-y-2 text-sm">
+                            <li>Variable ka naam hamesha <b>letter (a-z)</b> ya <b>underscore (_)</b> se shuru hona chahiye.</li>
+                            <li>Number se shuru nahi ho sakta (e.g., <code>1player</code> ❌, <code>player1</code> ✅).</li>
+                            <li>Spaces allow nahi hain, underscore use karein (e.g., <code>my_name</code>).</li>
+                            <li>Case-sensitive hota hai: <code>Age</code> aur <code>age</code> do alag variables hain.</li>
+                            <li>Keywords (jaise <code>if, for, class</code>) ko variable name nahi bana sakte.</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">2. Dynamic Typing:</h4>
+                        <p class="text-sm">Python khud samajh jata hai ke variable mein kis tarah ka data hai (Number hai ya Text). Aapko batane ki zaroorat nahi hoti.</p>
+                    </div>
+
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">3. Multiple Assignment:</h4>
+                        <p class="text-sm">Aap ek hi line mein kayi variables bana sakte hain:<br><code>x, y, z = 10, 20, 30</code></p>
+                    </div>
+                `,
+                code: "# Sahi tarike\nfull_name = \"Ali Khan\"\nage = 22\n_secret = \"Code\"\n\n# Dynamic Typing\nx = 100       # Abhi yeh number hai\nprint(type(x))\n\nx = \"Hello\"   # Ab yeh text ban gaya\nprint(type(x))\n\n# Multiple Assignment\na, b, c = 1, 2, 3\nprint(a, b, c)"
+            },
+            basics_datatypes: {
+                group: "🔰 Basics",
+                title: "Data Types (Collections Special)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Python Collections (Bachon ke liye) 🎒</h3>
+                    <p class="mb-4">Ab hum seekhenge ke Python mein bohot saari cheezon ko kaise sambhal kar rakhte hain, bilkul jaise hum apna basta (bag) organize karte hain.</p>
+
+                    <div class="space-y-6">
+                    <div class="space-y-6">
+                        
+                        <!-- INT -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. int (Pura Number 🔢)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye wo number hai jo kabhi toot-ta nahi. Ismein koi point (.) nahi hota. Bilkul sabit number.</p>
+                            <p class="text-sm mb-2"><b>Daily Life Example:</b> Aapke haath ki ungliyan (5), Aapki umer (20), Room mein pankhay (2).</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab humein ginti (counting) karni ho.</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: Bina point ke number</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                brothers = 2<br>
+                                score = 100
+                            </div>
+                        </div>
+
+                        <!-- FLOAT -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. float (Adha/Tota hua 🌊)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye 'Floating Point' hai. Matlb ismein isharya (dot) hota hai. Ye poora nahi hota, balkay fractions mein hota hai.</p>
+                            <p class="text-sm mb-2"><b>Daily Life Example:</b> Bukhar (98.6), Petrol ki price (280.50), Doodh (1.5 litre).</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab humein accurate measurement (napa-tula) chahiye ho.</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: Number ke beech mein (.) dot</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                height = 5.8<br>
+                                price = 99.99
+                            </div>
+                        </div>
+
+                        <!-- COMPLEX -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. complex (Khayali Number 🧠)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye thoda advance maths hai. Ismein ek hissa 'Haqeeqi' (Real) hota hai aur ek 'Khayali' (Imaginary) hota hai jiske sath 'j' lagta hai.</p>
+                            <p class="text-sm mb-2"><b>Daily Life Example:</b> Bijli ki engineering ya space science mein use hota hai (Aam zindagi mein kam).</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                magic_num = 3 + 5j
+                            </div>
+                        </div>
+
+                        <!-- BOOL -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. bool (Button 🔘)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye duniya ka sab se chota data type hai. Iski sirf 2 values hain: <b>True</b> (Haan/Sach) ya <b>False</b> (Nahi/Jhoot).</p>
+                            <p class="text-sm mb-2"><b>Daily Life Example:</b> Kya light on hai? (True/False). Kya aap pass ho gaye? (True/False).</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Faisla (Decision) lene ke liye.</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                is_raining = False<br>
+                                has_money = True
+                            </div>
+                        </div>
+
+                        <!-- STR -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">5. str (String / Dhaaga 🧵)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye characters ki ek lari (chain) hai. Koi bhi text, naam, ya sentence string hota hai. Isay hamesha Quotes (" " ya ' ') mein band karte hain.</p>
+                            <p class="text-sm mb-2"><b>Daily Life Example:</b> Aapka naam, WhatsApp message, Book ki kahani.</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: Quotes " "</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                message = "Hello Pakistan"<br>
+                                number_wali_string = "123"  # Ye ab number nahi raha, text ban gaya
+                            </div>
+                        </div>
+
+                        <hr class="border-t border-slate-200 dark:border-slate-700 my-6">
+                        <h3 class="text-2xl font-black mb-4 text-center">👇 Ab Aate Hain Collections Par 👇</h3>
+
+                        <!-- LIST -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. List (Pencil Box ✏️)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye aapke pencil box jaisa hai. Aap ismein pencil, rubber, sharpener daal sakte hain, nikaal sakte hain, aur badal bhi sakte hain.</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab aapke paas bohot saara data ho aur aap usay baad mein change karna chahte hon.</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: [ Square Brackets ]</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                school_bag = ["Books", "Lunch", "Water"]<br>
+                                school_bag.append("Candy")  # Candy daal di<br>
+                                print(school_bag)
+                            </div>
+                        </div>
+
+                        <!-- TUPLE -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Tuple (Laminated ID Card 🆔)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye bilkul List jaisa hai, LEKIN ye "Laminated" hai. Ek baar ban gaya to ab ismein kuch change nahi ho sakta (na kuch add, na delete).</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab aap chahte hain ke data fix rahe aur ghalti se bhi koi usay change na kar sake. (Jaise: Week ke din, Earth ki location).</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: ( Round Brackets )</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                week_days = ("Mon", "Tue", "Wed")<br>
+                                # week_days[0] = "Sunday"  <-- ERROR ayega! (Mana hai)
+                            </div>
+                        </div>
+
+                        <!-- SET -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Set (Magic Sticker Album ✨)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye ek aisa magic box hai jo duplicate cheezein nahi rakhta. Agar aap 2 same stickers daalo, to wo khud hi ek ko gayab kar dega.</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab aapko duplicate data hatana ho aur sirf unique cheezein chahiye hon.</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: { Curly Brackets }</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                numbers = {1, 2, 2, 2, 3}<br>
+                                print(numbers)  # Result sirf {1, 2, 3} ayega
+                            </div>
+                        </div>
+
+                        <!-- DICT -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Dict (English Dictionary 📖)</h4>
+                            <p class="text-sm mb-2"><b>Kaisa hota hai?</b> Ye jodon (pairs) mein kaam karta hai. Har cheez ka ek 'Naam' (Key) aur ek 'Matlab' (Value) hota hai. Jaise phone book mein Naam aur Number.</p>
+                            <p class="text-sm mb-2"><b>Kyun use karein?</b> Jab aapko kisi specific naam se data dhoondna ho (List ki tarah 0, 1, 2 se nahi).</p>
+                            <p class="text-sm font-bold text-indigo-500">Pehchan: { Key : Value }</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                phone_book = {"Ali": "0300-123", "Zara": "0333-555"}<br>
+                                print(phone_book["Ali"])  # Result: 0300-123
+                            </div>
+                        </div>
+
+                        <!-- COMPARISON -->
+                        <div class="bg-indigo-50 dark:bg-slate-800 p-4 rounded-xl border border-indigo-100">
+                            <h4 class="font-bold text-indigo-600 mb-3 text-lg">Aamne Saamne (Comparison) 🆚</h4>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="font-bold">List ✏️</div>
+                                <div>Change ho sakti hai (Mutable)</div>
+                                <div class="font-bold">Tuple 🆔</div>
+                                <div>Fixed hai (Immutable)</div>
+                                <div class="font-bold">Set ✨</div>
+                                <div>No Duplicates (Sirf Unique)</div>
+                                <div class="font-bold">Dict 📖</div>
+                                <div>Key-Value Wala Data</div>
+                            </div>
+                        </div>
+
+                        <!-- TRICK -->
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200">
+                            <h4 class="font-bold text-yellow-700 dark:text-yellow-400 mb-2">Yaad Rakhne Ki Trick 💡</h4>
+                            <ul class="text-sm space-y-1">
+                                <li><b>List []</b> : Box khula hai (Change karo).</li>
+                                <li><b>Tuple ()</b> : Round hai (Roll nahi ho sakta, Fixed).</li>
+                                <li><b>Set {}</b> : Magic Box (Duplicate gayab).</li>
+                                <li><b>Dict {k:v}</b> : Dictionary (Word aur Meaning).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                code: "# 1. Int (Pura Number)\nbrothers = 2\n\n# 2. Float (Point wala)\nheight = 5.8\n\n# 3. Complex (Khayali)\nmagic = 2 + 3j\n\n# 4. Bool (Sach/Jhoot)\nis_passed = True\n\n# 5. Str (Text)\nname = \"Ali\"\n\n# 6. List (Khula Bag)\nbag = [\"Pen\", \"Book\"]\n\n# 7. Tuple (Band Box)\ndays = (\"Mon\", \"Tue\")\n\n# 8. Set (No Duplicate)\nnums = {1, 2, 2, 3}\n\n# 9. Dict (Word Meaning)\nmarks = {\"Math\": 90, \"Eng\": 80}\n\nprint(\"Int:\", brothers)\nprint(\"Float:\", height)\nprint(\"Complex:\", magic)\nprint(\"Bool:\", is_passed)\nprint(\"Str:\", name)\nprint(\"List:\", bag)\nprint(\"Tuple:\", days)\nprint(\"Set:\", nums)\nprint(\"Dict:\", marks)"
+            },
+            basics_strings: {
+                group: "🔰 Basics",
+                title: "Strings Deep Dive",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Strings (Text Handling) 🧵</h3>
+                    <p class="mb-4">String characters ki lari hoti hai. Isay single (' ') ya double (" ") quotes mein likha jata hai.</p>
+
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">1. Indexing & Slicing:</h4>
+                        <p class="text-sm mb-2"><b>Indexing:</b> Har character ka address (index) hota hai jo 0 se shuru hota hai.</p>
+                        <p class="text-sm"><b>Slicing:</b> String ka tukra nikalna.<br>Format: <code>text[start : stop : step]</code></p>
+                    </div>
+
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">2. String Methods:</h4>
+                        <ul class="list-disc ml-5 space-y-1 text-sm">
+                            <li><code>upper()</code>: Sab baray harf mein.</li>
+                            <li><code>lower()</code>: Sab chhotay harf mein.</li>
+                            <li><code>strip()</code>: Agay peeche ki spaces khatam kare.</li>
+                            <li><code>replace("old", "new")</code>: Lafz tabdeel kare.</li>
+                            <li><code>split()</code>: String ko tor kar list banaye.</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-box">
+                        <h4 class="font-bold text-indigo-600 mb-2">3. f-strings (Formatting):</h4>
+                        <p class="text-sm">Text ke beech mein variable ki value dikhane ka sab se best tareeqa.<br><code>f"Mera naam {name} hai"</code></p>
+                    </div>
+                `,
+                code: "text = \"  Python Programming  \"\n\n# Slicing\nprint(text[2:8])  # Index 2 se 7 tak\nprint(text[::-1]) # Ulta (Reverse)\n\n# Methods\nclean_text = text.strip()\nprint(clean_text.upper())\nprint(clean_text.replace(\"Python\", \"Coding\"))\n\n# F-String\nscore = 95\nprint(f\"Aapka score {score} hai!\")"
+            },
+            basics_casting: {
+                group: "🔰 Basics",
+                title: "Type Casting & Validation",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Type Casting (Bhairupiya) 🔄</h3>
+                    <p class="mb-4">Type Casting ka matlab hai "Libas Badlna". Ek data type ko zabardasti doosre mein convert karna. Ye programming mein BOHT zaroori hai.</p>
+
+                    <div class="space-y-6">
+                        <!-- INT() -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. int() Function</h4>
+                            <p class="text-sm mb-2"><b>Kaam:</b> Ye kisi cheez ko Number (Integer) banata hai.</p>
+                            <p class="text-sm border-l-4 border-red-400 pl-3 py-1 bg-red-50 dark:bg-red-900/10"><b>Note:</b> Agar point wala number (4.9) doge, to ye point ke baad sab uda dega (4 ban jayega). Round off nahi karta, bas kaat deta hai!</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                x = int(3.99)      # Result: 3 (Data Loss!)<br>
+                                y = int("500")     # Sahi hai (" HAT jayega)<br>
+                                # z = int("Ali")   # ERROR! (Ali number nahi ban sakta)
+                            </div>
+                        </div>
+
+                        <!-- FLOAT() -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. float() Function</h4>
+                            <p class="text-sm mb-2"><b>Kaam:</b> Ye number ko napa-tula (decimal) banata hai.</p>
+                            <p class="text-sm">Agar aap 5 doge, to ye usay 5.0 kar dega. Point lagana iska kaam hai.</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                marks = float(90)  # Result: 90.0<br>
+                                price = float("55.5") 
+                            </div>
+                        </div>
+
+                        <!-- STR() -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. str() Function</h4>
+                            <p class="text-sm mb-2"><b>Kaam:</b> Kisi bhi cheez ko Text bana do.</p>
+                            <p class="text-sm">Ye sabse safe hai. Aap number, list, kuch bhi isay do, ye usay quotes " " mein band kar dega.</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                age = 20<br>
+                                message = "I am " + str(age) + " years old."
+                            </div>
+                        </div>
+
+                        <!-- VALIDATION -->
+                        <div class="bg-indigo-50 dark:bg-slate-800 p-4 rounded-xl border border-indigo-100 mt-6">
+                            <h4 class="font-bold text-indigo-600 mb-3 text-lg">Input Validation Example 🛡️</h4>
+                            <p class="text-sm mb-2">Jab user se input lete hain, to check karna zaroori hai ke wo sahi hai ya nahi.</p>
+                            <code class="block bg-slate-900 text-green-400 p-3 rounded-lg text-xs font-mono">
+value = input("Enter Age: ")<br>
+if value.isdigit():  # Kya ye number hai?<br>
+&nbsp;&nbsp;age = int(value)<br>
+&nbsp;&nbsp;print("Good job!")<br>
+else:<br>
+&nbsp;&nbsp;print("Ghalat! Number likhein.")
+                            </code>
+                        </div>
+                    </div>
+                `,
+                code: "# 1. Float ko Int banana (Loss Note)\npi = 3.14159\nprint(\"Asal Value:\", pi)\nprint(\"Int banne ke baad:\", int(pi)) # 3 reh gaya\n\n# 2. String ko Number banana\nstr_num = \"100\"\nresult = int(str_num) + 50\nprint(\"Total:\", result)\n\n# 3. Validation Logic\nuser_input = \"50\"\nif user_input.isdigit():\n    print(\"Ye number hai!\")\nelse:\n    print(\"Ye text hai!\")"
+            },
+            basics_io: {
+                group: "🔰 Basics",
+                title: "Input & Output Details",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Input & Output (Baat Cheet) 🗣️</h3>
+                    <p class="mb-4">Programming ka matlab hai Computer se baat karna. Input matlab "Sunna" aur Output matlab "Bolna".</p>
+
+                    <div class="space-y-6">
+                        <!-- INPUT -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Input (Sawal Puchna)</h4>
+                            <p class="text-sm mb-2"><b>Kaam:</b> Jab program user se koi cheez mangta hai. Jaise "Aapka naam kya hai?".</p>
+                            <p class="text-sm bg-yellow-50 dark:bg-yellow-900/10 p-3 rounded border-l-4 border-yellow-400"><b>Zaroori Point:</b> Python ka <code>input()</code> hamesha jawab ko <b>Text (String)</b> samajhta hai. Agar number chahiye to <code>int()</code> lagana na bhoolna!</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                name = input("Naam batayein: ")<br>
+                                age = int(input("Age batayein: ")) # Number ke liye int zaroori hai
+                            </div>
+                        </div>
+
+                        <!-- OUTPUT -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Print (Jawab Dena)</h4>
+                            <p class="text-sm mb-2"><b>Kaam:</b> Screen par result dikhana.</p>
+                            <p class="text-sm mb-2">Aap comma (,) laga kar bohot saari cheezein ek sath dikha sakte hain.</p>
+                            <ul class="text-sm list-disc ml-5 space-y-1">
+                                <li><code>sep="..."</code>: Cheezon ke beech mein kya aye? (Default: Space)</li>
+                                <li><code>end="..."</code>: Line khatam hone par kya kare? (Default: New Line)</li>
+                            </ul>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                print("Ali", "Khan", sep="-")  # Result: Ali-Khan<br>
+                                print("Hello", end="!") # Agla print isi line mein ayega
+                            </div>
+                        </div>
+
+                        <!-- COMMENTS -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Comments (Yaad-dihani)</h4>
+                            <p class="text-sm mb-2">Ye wo notes hain jo hum apne liye likhte hain. Computer inhein ignore kar deta hai (parhta nahi).</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded text-sm">
+                                    <b>Single Line:</b> (<code>#</code>)<br>Choti baat likhne ke liye.
+                                </div>
+                                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded text-sm">
+                                    <b>Multi Line:</b> (<code>''' ... '''</code>)<br>Puri kahani ya detail likhne ke liye.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                code: "# 1. Printing Style\nprint(\"Python\", \"Easy\", \"Hai\", sep=\" -- \")\n\n# 2. Input Simulation (Kyunke yahan live input mushkil hai)\nuser_name = \"Guest\" # Maan lo user ne 'Guest' likha\nprint(f\"Welcome, {user_name}!\")\n\n# 3. Comments\n# Ye line computer nahi chalaye ga\n'''\nYe bhi ignore ho jayega.\nSirf insaan parh sakte hain.\n'''\nprint(\"Code chal raha hai.\")"
+            },
+
+            // ---------------------------------------------------------
+            // 🧮 MODULE 2: OPERATORS & LOGIC
+            // ---------------------------------------------------------
+            ops_all: {
+                group: "🧮 Operators & Logic",
+                title: "Operators (Advanced)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Operators Masterclass (Deep & Advanced) 🧪</h3>
+                    <p class="mb-4">Ab hum Operators ko sirf use nahi karenge, unki "Chemistry" samjhenge. Pro developers inhein kaise use karte hain, dekhiye:</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Arithmetic -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Arithmetic (Advance Math) 🧮</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python mein 'BODMAS' rule chalta hai (PEMDAS). Pehle Brackets, phir Power, phir Multiply/Divide, phir Add/Subtract.</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    # Complex Calculation<br>
+                                    result = 10 + 5 * 2 ** 3<br>
+                                    # Logic: 2^3=8 -> 5*8=40 -> 10+40=50<br>
+                                    print(f"BODMAS Result: {result}")<br><br>
+                                    # Modulus for Even/Odd<br>
+                                    num = 17<br>
+                                    is_even = (num % 2 == 0) # False
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- 2. Assignment -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Assignment (Shortcuts) 📥</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Memory mein ye "In-Place" kaam karta hai. Ye naya dabbal nahi banata, usi purane dabbe ko update karta hai (Optimization ke liye zabardast).</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    price = 100<br>
+                                    tax = 1.10 # 10% Tax<br>
+                                    price *= tax  # price = price * tax<br>
+                                    price //= 1   # Point hata diya (Floor)<br>
+                                    print(f"Final Price: {price}")
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- 3. Comparison -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Comparison (Chained Logic) ⚖️</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python duniya ki unn thodi si languages mein hai jo "Chaining" allow karti hai. Aap ek sath multiple comparisons jor sakte hain.</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    age = 25<br>
+                                    # Pro Style Check<br>
+                                    if 18 <= age <= 60:<br>
+                                        &nbsp;&nbsp;print("Working Age Group")<br>
+                                    # Normal Style (Old):<br>
+                                    # if age >= 18 and age <= 60:
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- 4. Logical -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Logical (Short-Circuit) 🚦</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python bohot chalaak hai. Agar 'and' mein pehli cheez False ho, to wo agay check hi nahi karta (Time bachti hai). Isay "Short-Circuiting" kehte hain.</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    user = None<br>
+                                    # Agar user nahi hai, to Crash nahi hoga<br>
+                                    # Kyunke 'user' None hai to agay check nahi hua<br>
+                                    if user and user.is_active:<br>
+                                        &nbsp;&nbsp;print("Welcome")<br>
+                                    else:<br>
+                                        &nbsp;&nbsp;print("User not found (Safe!)")
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- 5. Membership -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">5. Membership (Fast Search) 🔍</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> 'in' operator List par slow hota hai lekin Dictionary keys aur Sets par Bijli ki tezi (O(1)) se kaam karta hai.</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    banned_users = {"evil_guy", "hacker", "spammer"}<br>
+                                    current_user = "hacker"<br><br>
+                                    if current_user in banned_users:<br>
+                                        &nbsp;&nbsp;print("You are BANNED! 🚫")
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- 6. Identity -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">6. Identity (Memory Address) 🆔</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> '==' values check karta hai, lekin 'is' Memory Address check karta hai. List chahe same ho, memory mein alag ho sakti hain.</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-3">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Level Example:</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    list_a = [1, 2, 3]<br>
+                                    list_b = [1, 2, 3]<br><br>
+                                    print(list_a == list_b) # True (Same values)<br>
+                                    print(list_a is list_b) # False ! (Alag copies hain)
+                                </code>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Advanced Math (BODMAS)\nres = 10 + 5 * 2 ** 3 # 10 + 40 = 50\nprint(f\"Advance Calculation: {res}\")\n\n# 2. Chained Comparison\nage = 25\nif 18 <= age <= 30:\n    print(f\"Youth: {age} (Chained Check)\")\n\n# 3. Short Circuit Logic\n# Agar pehla False, to agla check nahi hota\nx = None\nif x and x.upper():\n    print(\"Ye print nahi hoga\")\nelse:\n    print(\"Short Circuit ne bacha liya!\")\n\n# 4. Identity Trap\na = [1, 2]\nb = [1, 2]\nprint(f\"Check Value (==): {a == b}\")\nprint(f\"Check Memory (is): {a is b}\")"
+            },
+            ops_conditional: {
+                group: "🧮 Operators & Logic",
+                title: "If / Else (Masterclass)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">If / Else Masterclass (Faisla Saazi) 🔀</h3>
+                    <p class="mb-4">Computer ko intelligence dena. Faisla (Decision) lene ki taqat.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Structure -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. The Structure 🏗️</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python indentation (space) use karta hai block banane ke liye. Agar space ghalat, to code crash.</p>
+                            <ul class="text-sm space-y-2 list-disc ml-5">
+                                <li><code>if</code>: Entry Gate (Agar ye sach hai to andar aao).</li>
+                                <li><code>elif</code>: Doosra darwaza (Agar pehla band tha, to ye try karo).</li>
+                                <li><code>else</code>: Emergency Exit (Agar koi bhi darwaza nahi khula, to yahan se jao).</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. Truthy / Falsy -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Truthy & Falsy Values 🎭</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python mein har cheez True ya False hoti hai. Aapko hamesha <code>== True</code> likhne ki zaroorat nahi.</p>
+                            <div class="grid grid-cols-2 gap-4 text-sm mt-3">
+                                <div class="bg-red-50 dark:bg-red-900/10 p-3 rounded-lg border border-red-200">
+                                    <b class="text-red-600">Falsy (Jhoot) ❌</b>
+                                    <ul class="list-disc ml-4 opacity-80">
+                                        <li>False</li>
+                                        <li>None</li>
+                                        <li>0 (Zero)</li>
+                                        <li>"" (Empty String)</li>
+                                        <li>[] (Empty List)</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-green-50 dark:bg-green-900/10 p-3 rounded-lg border border-green-200">
+                                    <b class="text-green-600">Truthy (Sach) ✅</b>
+                                    <ul class="list-disc ml-4 opacity-80">
+                                        <li>True</li>
+                                        <li>Koi bhi number (1, -5)</li>
+                                        <li>Koi bhi bhara hua text</li>
+                                        <li>Bhara hua list/dict</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Pro Techniques -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Pro Techniques (Jugaad) ⚡</h4>
+                            
+                            <div class="space-y-4">
+                                <!-- Ternary -->
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                                    <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Example 1: Ternary Operator (One Liner)</h5>
+                                    <p class="text-indigo-200 text-xs mb-2 italic">4 lines ka code 1 line mein.</p>
+                                    <code class="text-xs font-mono text-indigo-100">
+                                        # Aam Zindagi (Normal)<br>
+                                        if marks >= 50:<br>
+                                        &nbsp;&nbsp;status = "Pass"<br>
+                                        else:<br>
+                                        &nbsp;&nbsp;status = "Fail"<br><br>
+                                        # Mentos Zindagi (Pro)<br>
+                                        status = "Pass" if marks >= 50 else "Fail"
+                                    </code>
+                                </div>
+
+                                <!-- Guard Clauses -->
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                                    <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Example 2: Guard Clauses (Safai)</h5>
+                                    <p class="text-indigo-200 text-xs mb-2 italic">Nested <code>else</code> se bachne ka tarika. Pehle hi rok do.</p>
+                                    <code class="text-xs font-mono text-indigo-100">
+                                        def login(user, password):<br>
+                                        &nbsp;&nbsp;# Pehle ghaltiyan check karo<br>
+                                        &nbsp;&nbsp;if not user: return "No User"<br>
+                                        &nbsp;&nbsp;if not password: return "No Password"<br><br>
+                                        &nbsp;&nbsp;# Ab asal kaam<br>
+                                        &nbsp;&nbsp;return "Login Successful!"
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Truthy/Falsy Check\nname = \"\" # Empty string (False)\nif name:\n    print(f\"Hello {name}\")\nelse:\n    print(\"Naam nahi likha!\") # Ye chalega\n\n# 2. Ternary Operator (One Liner)\nage = 15\nmessage = \"Adult\" if age >= 18 else \"Kid\"\nprint(f\"You are a: {message}\")\n\n# 3. Guard Clause Logic\ndef check_vote(age, has_id):\n    if age < 18: return \"Too young\"\n    if not has_id: return \"No ID Card\"\n    return \"Vote Casted!\"\n\nprint(check_vote(20, True))"
+            },
+            ops_loops: {
+                group: "🧮 Operators & Logic",
+                title: "Loops (Ultimate Depth)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Loops Masterclass (Chakkar) 🔄</h3>
+                    <p class="mb-4">Duniya ka har bada software Loops par chalta hai. Agar aap ye samajh gaye, to aap Programmer ban gaye!</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Why Loops? -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Loops ki Zaroorat Kyun? 🤔</h4>
+                            <p class="text-sm mb-2">Imagine karo aapko 100 dafa "Sorry" likhna hai. Hath se likhoge to thak jaoge. Computer se kaho "Ye kaam 100 dafa karo". Bas yahi Loop hai.</p>
+                            <p class="text-sm bg-indigo-50 dark:bg-slate-800 p-2 rounded border-l-4 border-indigo-500"><b>Simple Definition:</b> Repeat karna (Baar baar chalana).</p>
+                        </div>
+
+                        <!-- 2. For Loop -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. For Loop (Ginti Wala Chakkar) 🔢</h4>
+                            <p class="text-sm mb-2">Jab hamein <b>PATA</b> ho ke kitni baar chalna hai.</p>
+                            <ul class="text-sm list-disc ml-5 space-y-2">
+                                <li><code>range(5)</code>: 0 se 4 tak chalo (Total 5 baar).</li>
+                                <li><code>for item in list</code>: List ki har cheez ke liye ek baar chalo.</li>
+                            </ul>
+                        </div>
+
+                        <!-- 3. While Loop -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. While Loop (Ziddi Chakkar) 😤</h4>
+                            <p class="text-sm mb-2">Jab hamein <b>NAHI PATA</b> ke kitni baar chalna hai, bas tab tak chalna hai jab tak kaam na ho jaye.</p>
+                            <p class="text-sm"><i>Example:</i> Jab tak game over na ho, chalaate raho.</p>
+                        </div>
+
+                        <!-- 4. Control Keys -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Control (Remote Control) 🎮</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-center text-sm mt-3">
+                                <div class="bg-red-100 dark:bg-red-900/30 p-2 rounded text-red-700 dark:text-red-300 font-bold">
+                                    🛑 break<br><span class="font-normal text-xs">Loop ko jaan se maar do (Stop).</span>
+                                </div>
+                                <div class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded text-yellow-700 dark:text-yellow-300 font-bold">
+                                    ⏭️ continue<br><span class="font-normal text-xs">Ye chakkar chhoro, agla karo (Skip).</span>
+                                </div>
+                                <div class="bg-slate-100 dark:bg-slate-800 p-2 rounded text-slate-700 dark:text-slate-300 font-bold">
+                                    😶 pass<br><span class="font-normal text-xs">Kuch mat karo (Khamosh raho).</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Pro Secrets -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">5. Pro Secrets (Else & Nested) 🤫</h4>
+                            <p class="text-sm mb-2"><b>Else in Loop:</b> Kya aapko pata hai Loop ka bhi <code>else</code> hota hai? Ye tab chalta hai jab loop pura khatam ho jaye (bina break hue).</p>
+                            <p class="text-sm"><b>Nested Loops:</b> Loop ke andar Loop. (Ghadi ki sui ki tarah - Seconds ki sui chalti hai to Minute ki sui hilti hai).</p>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Basic For Loop (Range)\nprint(\"--- Ginti ---\")\nfor i in range(1, 4):\n    print(f\"Round {i}\")\n\n# 2. Iterating List (Collection)\nprint(\"\\n--- Shopping ---\")\ncart = [\"Apple\", \"Banana\"]\nfor item in cart:\n    print(f\"Buying {item}...\")\n\n# 3. While Loop (Game Logic)\nprint(\"\\n--- While Loop ---\")\npower = 3\nwhile power > 0:\n    print(f\"Power is {power}, Running...\")\n    power -= 1 # Kam karna zaroori hai warna phans jayega!\n\n# 4. Break & Continue\nprint(\"\\n--- Control ---\")\nfor num in range(1, 6):\n    if num == 3: \n        print(\"Skipping 3 (Continue)\")\n        continue\n    if num == 5:\n        print(\"Stopping at 5 (Break)\")\n        break\n    print(num)\n\n# 5. Pro Tip: Loop ka Else\nprint(\"\\n--- Else Block ---\")\nfor x in range(3):\n    pass\nelse:\n    print(\"Mubarak ho! Loop poora chala (No Break)\")"
+            },
+
+            // ---------------------------------------------------------
+            // 🧩 MODULE 3: FUNCTIONS & DATA STRUCTURES
+            // ---------------------------------------------------------
+            funcs_basic: {
+                group: "🧩 Functions & Data",
+                title: "Functions In-Depth",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Functions Masterclass (Machines) 🧩</h3>
+                    <p class="mb-4">Functions "Choti Machines" hoti hain. Aap inhein input dete hain, ye process karti hain, aur output wapas deti hain.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The Recipe -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. The Recipe (Tarkeeb) 📝</h4>
+                            <p class="text-sm mb-2">Function banane ka tareeqa:</p>
+                            <ul class="text-sm list-disc ml-5 space-y-1">
+                                <li><code>def</code>: (Define) Computer ko batao ke nayi machine bana rahe hain.</li>
+                                <li><code>name()</code>: Machine ka naam (jaise <code>make_tea</code>).</li>
+                                <li><code>params</code>: Bracket mein wo cheezein jo machine ko chahiye (jaise Water, Milk).</li>
+                                <li><code>return</code>: Machine ka final product (Chaye ka cup).</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. Return vs Print -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Return vs Print (Barra Farq) ⚠️</h4>
+                            <p class="text-sm mb-2"><b>Print:</b> Sirf screen par dikhana (Jaise machine ki awaaz). Isay aap variable mein store nahi kar sakte.</p>
+                            <p class="text-sm"><b>Return:</b> Asal cheez wapas dena (Jaise machine se Juice nikalna). Isay aap store kar sakte hain aur baad mein pi sakte hain.</p>
+                        </div>
+
+                        <!-- 3. Default & Keyword Args -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Advance Arguments ⚙️</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded-lg">
+                                    <b class="text-indigo-600">Default Value</b>
+                                    <p class="text-xs mt-1">Agar user kuch na de, to apni taraf se value laga lo.</p>
+                                    <code class="text-xs bg-white dark:bg-black p-1 rounded mt-1 block">def greet(name="Dost"):</code>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded-lg">
+                                    <b class="text-indigo-600">Keyword Args</b>
+                                    <p class="text-xs mt-1">Naam le kar value dena (Sequence yaad rakhne ki zaroorat nahi).</p>
+                                    <code class="text-xs bg-white dark:bg-black p-1 rounded mt-1 block">func(age=20, name="Ali")</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Scope (Ilaka) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Scope (Ilaka/Access) 🚧</h4>
+                            <p class="text-sm mb-2"><b>Local Variable:</b> Jo function ke andar bana, wo wahin mar jayega. Bahar kisi ko nahi pata uske baare mein.</p>
+                            <p class="text-sm"><b>Global Variable:</b> Jo sabse bahar bana, usay sab jante hain.</p>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Simple Function (Return)\ndef adder(a, b):\n    return a + b\n\nresult = adder(10, 20)\nprint(f\"Result stored: {result}\")\n\n# 2. Default Arguments\ndef make_coffee(sugar=True):\n    if sugar:\n        return \"Meethi Coffee ☕\"\n    else:\n        return \"Pheeki Coffee ☕\"\n\nprint(make_coffee()) # Default Meethi ayegi\nprint(make_coffee(False)) # Ab Pheeki ayegi\n\n# 3. Scope Logic (Ilaka)\nx = 100 # Global\n\ndef change_it():\n    x = 5 # Local (Sirf is function ke liye)\n    print(f\"Andar wala x: {x}\")\n\nchange_it()\nprint(f\"Bahar wala x: {x}\") # Ye abhi bhi 100 hai"
+            },
+            struct_lists: {
+                group: "🧩 Functions & Data",
+                title: "Lists (Deep & Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Lists Masterclass (The Super Bag) 🎒</h3>
+                    <p class="mb-4">List Python ka sabse takatwar "Container" hai. Ismein aap duniya ki koi bhi cheez rakh sakte hain, aur kisi bhi tarteeb (order) mein.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Indexing & Slicing -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Indexing & Slicing (Pata Pucha) 📍</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Computer ginti 0 se shuru karta hai, 1 se nahi. (0 matlab pehla item).</p>
+                            <ul class="text-sm list-disc ml-5 space-y-1">
+                                <li><code>[0]</code>: Pehla item.</li>
+                                <li><code>[-1]</code>: Aakhri item (Ulta ginti).</li>
+                                <li><code>[start:stop:step]</code>: Slicing (Cake kaatna). E.g., <code>[::2]</code> (Har doosra item uthao).</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. Memory Concept -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Memory Magic (Mutable) 🧠</h4>
+                            <p class="text-sm mb-2">List "Mutable" hai. Iska matlab hai aap bag khole baghair andar ki cheez badal sakte hain.</p>
+                            <code class="text-xs bg-slate-100 dark:bg-slate-900 p-2 rounded block">
+                                x = [1, 2, 3]<br>
+                                x[0] = 99  # Allowed! Bag wahi hai, item badal gaya.
+                            </code>
+                        </div>
+
+                        <!-- 3. Important Methods -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Methods (Auzaar) 🛠️</h4>
+                            <div class="grid grid-cols-2 gap-2 text-sm mt-2">
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>.append(x)</code><br>Aakhir mein joro.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>.insert(i, x)</code><br>Beech mein ghusao.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>.pop()</code><br>Aakhri uda do.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>.sort()</code><br>Tarteeb lagao.</div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Pro Technique -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Pro Secret: List Comprehension 🚀</h4>
+                            <p class="text-sm mb-2">Ye Python ka sabse mashhoor jadoo hai. 3 line ka loop, 1 line mein!</p>
+                            
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-2">
+                                <h5 class="text-green-400 font-bold text-xs uppercase mb-2">🚀 Pro Example: From 3 Lines to 1 Line</h5>
+                                <code class="text-xs font-mono text-indigo-100">
+                                    # Old Way (Boring)<br>
+                                    squares = []<br>
+                                    for x in range(5):<br>
+                                    &nbsp;&nbsp;squares.append(x**2)<br><br>
+                                    # Pro Way (Cool)<br>
+                                    squares = [x**2 for x in range(5)]
+                                </code>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Pro Slicing\nnums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]\nprint(f\"Original: {nums}\")\nprint(f\"Ulta (Reverse): {nums[::-1]}\")\nprint(f\"Har Doosra (Step 2): {nums[::2]}\")\n\n# 2. List Comprehension (Pro)\n# Ek line mein Even numbers nikalna\nevens = [x for x in nums if x % 2 == 0]\nprint(f\"Evens (One Liner): {evens}\")\n\n# 3. Memory Check\na = [1, 2]\nb = a # b bhi wahi point kar raha hai jo a hai\nb.append(99)\nprint(f\"Asal 'a' bhi change ho gaya: {a}\")"
+            },
+            struct_tuples_sets: {
+                group: "🧩 Functions & Data",
+                title: "Tuples & Sets (Deep & Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Tuples & Sets Masterclass 📦</h3>
+                    <p class="mb-4">Ye dono Lists ke cousins hain, lekin inke rules aur personality bilkul alag hai. Inhein samajhna pro banne ke liye lazmi hai.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Tuple (The Stone) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Tuple (Patthar Ki Laqeer) 🗿</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Tuple "Immutable" hai. Iska matlab hai ye ek baar ban gaya to kabhi badlega nahi. Ismein se kuch nikaal ya daal nahi sakte.</p>
+                            <p class="text-sm border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 dark:bg-indigo-900/10"><b>Daily Life Example:</b> Aapka CNIC Number ya Birthday date. Ye cheezain fix hain, inhein edit nahi kiya jata.</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                coord = (24.8, 67.0) # Karachi GPS<br>
+                                # coord[0] = 25.0  <-- ERROR! Fix hai.
+                            </div>
+                        </div>
+
+                        <!-- 2. Set (The Filter) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Set (The Magic Filter) ✨</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Set ki 2 khaas powers hain: No Duplicates (sirf unique) aur No Order (aage peeche ho sakte hain).</p>
+                            <p class="text-sm border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 dark:bg-indigo-900/10"><b>Daily Life Example:</b> Aik party ki Guest List. Aik naam do baar nahi ho sakta, warna entry mein masla hoga.</p>
+                            <div class="mt-2 bg-slate-100 dark:bg-slate-900 p-2 rounded text-xs font-mono">
+                                party_list = {"Ali", "Sara", "Ali"} # Duplicate "Ali" khud hi gayab ho jayega
+                            </div>
+                        </div>
+
+                        <!-- 3. Set Operations (Pro Math) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Set Operations (Venn Diagram) 🔮</h4>
+                            <p class="text-sm mb-2">Groups ke sath khelna seekhein:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs mt-2">
+                                <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200">
+                                    <b class="text-indigo-600">Union (|)</b><br>Dono groups ko mila do (Join).
+                                </div>
+                                <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200">
+                                    <b class="text-indigo-600">Intersection (&)</b><br>Sirf wo jo dono mein Common hain.
+                                </div>
+                                <div class="bg-slate-50 dark:bg-slate-800 p-2 rounded border border-slate-200">
+                                    <b class="text-indigo-600">Difference (-)</b><br>Jo pehle mein hai par doosre mein nahi.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Tuple Packing & Unpacking\npoint = (5, 10, 15)\nx, y, z = point # 3 piece alag alag\nprint(f\"X Coordinate: {x}\")\n\n# 2. Set Magic (Cleaning Data)\nnames = [\"Ali\", \"Zara\", \"Ali\", \"Ahmed\", \"Zara\"]\nunique_names = set(names)\nprint(f\"Saaf List (Unique): {unique_names}\")\n\n# 3. Pro Set Operations\ngroup_A = {\"Python\", \"Java\", \"C++\"}\ngroup_B = {\"JS\", \"Python\", \"PHP\"}\n\nprint(f\"Common Language: {group_A & group_B}\")\nprint(f\"All Languages: {group_A | group_B}\")"
+            },
+            struct_dicts: {
+                group: "🧩 Functions & Data",
+                title: "Dictionaries (Deep & Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Dictionaries Masterclass (Key-Value) 📖</h3>
+                    <p class="mb-4">Real world data ko handle karne ke liye Dictionaries sabse behtareen hain. Ismein data "Index 0,1,2" se nahi, balkay "Naam" (Key) se dhoonda jata hai.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The Key-Value Logic -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Key-Value Logic (Naam aur Matlab) 🔑</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Dictionary ki "Key" hamesha Unique (Munfarid) honi chahiye. Agar aap same key do baar doge, to purani wali update ho jayegi.</p>
+                            <p class="text-sm border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 dark:bg-indigo-900/10"><b>Daily Life Example:</b> Aik English-to-Urdu Dictionary. "Apple" (Key) hai aur "Saib" (Value) hai.</p>
+                        </div>
+
+                        <!-- 2. Safe Access (get) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Accessing Data (Safe vs Risk) 🛡️</h4>
+                            <p class="text-sm mb-2"><b>Risk:</b> <code>user["phone"]</code> -- Agar phone nahi hua, to program Crash ho jayega.</p>
+                            <p class="text-sm"><b>Safe (Pro):</b> <code>user.get("phone", "N/A")</code> -- Agar phone nahi mila, to ye "N/A" dega, Crash nahi karega.</p>
+                        </div>
+
+                        <!-- 3. Nested Dictionaries -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Nested Dictionaries (Data ka Jaal) 🕸️</h4>
+                            <p class="text-sm mb-2">Dictionary ke andar Dictionary. Ye complex data (jaise user profiles) store karne ke liye use hota hai.</p>
+                            <code class="text-xs bg-slate-100 dark:bg-slate-900 p-2 rounded block font-mono">
+                                users = { "ali": {"age": 20, "city": "KHI"} }
+                            </code>
+                        </div>
+
+                        <!-- 4. Pro: Dict Comprehension -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Pro: Dictionary Comprehension 🚀</h4>
+                            <p class="text-sm mb-2">Aik line mein puri dictionary banao. Pro developers ki nishani.</p>
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 mt-2">
+                                <code class="text-xs font-mono text-indigo-100">
+                                    # Numbers aur unke Squares ki dict<br>
+                                    squares = {x: x**2 for x in range(5)}<br>
+                                    # Result: {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+                                </code>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Creating and Updating\nstudent = {\"name\": \"Ali\", \"age\": 22}\nstudent[\"age\"] = 23 # Update\nstudent[\"city\"] = \"Lahore\" # Add New\n\n# 2. Pro Access (get)\nprint(f\"Phone: {student.get('phone', 'Not Found!')}\")\n\n# 3. Nested Access\nschool = {\n    \"class_A\": {\"total\": 30, \"teacher\": \"Asad\"},\n    \"class_B\": {\"total\": 25, \"teacher\": \"Sara\"}\n}\nprint(f\"Class B Students: {school['class_B']['total']}\")\n\n# 4. Dict Comprehension (Pro)\nprices = {\"milk\": 200, \"bread\": 100}\n# 10% Discount laga do\ndiscounted = {item: p * 0.9 for item, p in prices.items()}\nprint(f\"New Prices: {discounted}\")"
+            },
+            struct_compr: {
+                group: "🧩 Functions & Data",
+                title: "List Comprehension (Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">List Comprehension Masterclass ⚡</h3>
+                    <p class="mb-4">Ye Python ka sabse "Stylish" feature hai. Jo kaam <code>for</code> loop aur <code>if</code> mil kar 5 lines mein karte hain, ye usay aik line mein "Sleek" tareeqe se kar deta hai.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The Logic -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. The Logic (Aik Line Ka Jadoo) ✨</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Ismein aap pehle bataate hain ke "Kya chahiye" (Expression), phir bataate hain "Kahan se" (Loop), aur aakhir mein "Shart" (Condition).</p>
+                            <div class="p-3 bg-slate-900 text-indigo-200 rounded-lg font-mono text-xs">
+                                [ <span class="text-green-400">expression</span> for <span class="text-blue-400">item</span> in <span class="text-yellow-400">iterable</span> if <span class="text-red-400">condition</span> ]
+                            </div>
+                        </div>
+
+                        <!-- 2. If-Else Inside (Advanced) -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. If-Else Inside (Pro Move) 🎭</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Agar aapko sirf Filter karna hai, to <code>if</code> aakhir mein lagta hai. Lekin agar aapko Value badalni hai (e.g., Even ko 'Yes' bolna aur Odd ko 'No'), to <code>if-else</code> pehle lagta hai.</p>
+                            <code class="text-xs bg-slate-100 dark:bg-slate-900 p-2 rounded block font-mono mt-2">
+                                [ "Pass" if x >= 50 else "Fail" for x in marks ]
+                            </code>
+                        </div>
+
+                        <!-- 3. Nested Comprehension -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Nested (Complex Structures) 🕸️</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Aik List ke andar doosri List (Matrix) ko "Flatten" karna (seedha karna) ho to Nested Comprehension use hoti hai. Ye mushkil hai par "Pro" developers ki favourite hai.</p>
+                        </div>
+
+                        <!-- 4. Performance -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Performance (Bijli ki Tezi) ⚡</h4>
+                            <p class="text-sm"><b>Deep Logic:</b> List Comprehension simple <code>for loop</code> se <b>Fast</b> hoti hai kyunke ye Python ke andar "C" language level par optimize hoti hai.</p>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Basic Filtering\nnums = range(10)\nevens = [x for x in nums if x % 2 == 0]\nprint(f\"Evens: {evens}\")\n\n# 2. Advanced: If-Else in Comprehension\n# 5 se bade number ko 'Big' aur chhote ko 'Small' bolna\nlabels = [\"Big\" if x > 5 else \"Small\" for x in nums]\nprint(f\"Labels: {labels}\")\n\n# 3. Pro Level: Matrix Flattening\nmatrix = [[1, 2], [3, 4], [5, 6]]\n# Saari lists ko aik list mein badalna\nflat = [item for sublist in matrix for item in sublist]\nprint(f\"Flat List: {flat}\")\n\n# 4. String Manipulation\nwords = [\"apple\", \"banana\", \"cherry\"]\nupper_words = [w.upper() for w in words if 'a' in w]\nprint(f\"Upper with 'a': {upper_words}\")"
+            },
+
+            // ---------------------------------------------------------
+            // ⚠️ MODULE 4: ERRORS & FILES
+            // ---------------------------------------------------------
+            err_handling: {
+                group: "⚠️ Errors & Files",
+                title: "Exception Handling (Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Try / Except (Error Handling) 🛡️</h3>
+                    <p class="mb-4">Jab code mein error aaye, to program ko rone ya rukne nahi dena. Isay "Gracefully" handle karna pro programmer ka kaam hai.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The 4 Pillers -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. The 4 Blocks 🏗️</h4>
+                            <ul class="text-sm space-y-2">
+                                <li><code>try</code>: Khatre wala code (Jaise Airplane ka takeoff).</li>
+                                <li><code>except</code>: Emergency landing (Agar error aya to kya kare?).</li>
+                                <li><code>else</code>: Safe flight (Agar error nahi aya to ye chalega).</li>
+                                <li><code>finally</code>: Landing complete (Error ho ya na ho, ye hamesha chalega).</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. Specific Exceptions -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Specific Errors (Doctor Style) 🩺</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Sab errors ko aik hi <code>except</code> mein na dalo. Har bimari ke liye alag dawa (Exception) use karo.</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs mt-2">
+                                <div class="bg-red-50 dark:bg-red-900/10 p-2 rounded"><code>ValueError</code><br>Ghalat value (Int mein Text).</div>
+                                <div class="bg-red-50 dark:bg-red-900/10 p-2 rounded"><code>ZeroDivisionError</code><br>0 se divide karna.</div>
+                                <div class="bg-red-50 dark:bg-red-900/10 p-2 rounded"><code>FileNotFoundError</code><br>File nahi mili.</div>
+                                <div class="bg-red-50 dark:bg-red-900/10 p-2 rounded"><code>KeyError</code><br>Dict mein key nahi mili.</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Pro Secret: Raising -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Pro Secret: Raising Errors 💣</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Kabhi kabhi aap khud error "Faire" (Raise) karna chahte ho taake program agay na barhe.</p>
+                            <code class="text-xs bg-slate-100 dark:bg-slate-900 p-2 rounded block font-mono">
+                                if age < 0: raise ValueError("Age negative nahi ho sakti!")
+                            </code>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Multi-Error Handling\ntry:\n    num = int(input(\"Enter Number: \")) # input 'abc' for error\n    res = 10 / num\n    print(f\"Result: {res}\")\nexcept ValueError:\n    print(\"Error: Text nahi, number likho!\")\nexcept ZeroDivisionError:\n    print(\"Error: 0 se divide nahi ho sakta!\")\nexcept Exception as e:\n    print(f\"Kuch ghalat hua: {e}\")\n\n# 2. Else & Finally in Action\ntry:\n    print(\"\\nTrying division...\")\n    x = 10 / 2\nexcept:\n    print(\"Error aya!\")\nelse:\n    print(\"Wah! Koi error nahi aya.\")\nfinally:\n    print(\"Ye line to har haal mein chalegi.\")"
+            },
+            file_handling: {
+                group: "⚠️ Errors & Files",
+                title: "File Handling (Deep & Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">File Handling (Daftar) 📂</h3>
+                    <p class="mb-4">Python aapko computer ki Hard Drive ke sath khelne ki permission deta hai. Files banana, parhna, aur update karna.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The 'with' Logic -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. The 'with' Keyword (Must Use) 🛡️</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Purane zamane mein hum <code>f.close()</code> manually karte the. Agar karna bhool gaye to file "Corrupt" ho sakti thi. <code>with</code> block khatam hote hi file <b>Khud hi</b> close kar deta hai.</p>
+                            <p class="text-sm border-l-4 border-green-400 pl-3 py-1 bg-green-50 dark:bg-green-900/10"><b>Pro Tip:</b> Hamesha <code>with</code> use karein, ye safest tareeqa hai.</p>
+                        </div>
+
+                        <!-- 2. Modes of Operation -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Modes (Asli Power) ⚙️</h4>
+                            <div class="grid grid-cols-2 gap-4 text-xs mt-2">
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded">
+                                    <b class="text-blue-600">'r' & 'w'</b><br>Sirf parhna ya likhna (purana delete karke).
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded">
+                                    <b class="text-blue-600">'a' (Append)</b><br>Old data ke niche naya data jorna.
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded">
+                                    <b class="text-blue-600">'r+'</b><br>Dono kaam aik sath (Read + Write).
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-3 rounded">
+                                    <b class="text-blue-600">'rb' / 'wb'</b><br>Binary files (Photos / Videos) ke liye.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Reading Styles -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Reading Styles (Memory Check) 🧠</h4>
+                            <ul class="text-sm space-y-1">
+                                <li><code>read()</code>: Puri file utha lo (Choti files ke liye).</li>
+                                <li><code>readlines()</code>: Aik aik line kar ke list bana do.</li>
+                                <li><code>for line in f</code>: <b>Pro Way!</b> memory bachata hai, aik waqt mein aik hi line parhta hai.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                `,
+                code: "# NOTE: Browser playground mein hamara asal file system nahi hota\n# Is liye ye sirf 'Simulation' hai.\n\n# 1. Writing to a file\ntry:\n    with open(\"names.txt\", \"w\") as f:\n        f.write(\"Ali\\nSara\\nAsad\")\n    print(\"File Write Successful! ✅\")\n\n    # 2. Appending data\n    with open(\"names.txt\", \"a\") as f:\n        f.write(\"\\nAhmed\")\n\n    # 3. Reading the Pro Way (Line by Line)\n    print(\"\\nReading File Content:\")\n    with open(\"names.txt\", \"r\") as f:\n        for line in f:\n            print(f\"> {line.strip()}\")\nexcept Exception as e:\n    print(f\"File Error: {e}\")"
+            },
+
+            // ---------------------------------------------------------
+            // 📦 MODULE 5: MODULES & ENV
+            // ---------------------------------------------------------
+            modules_pkg: {
+                group: "📦 Modules & Env",
+                title: "Modules & PIP (Deep)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Modules & Environment Masterclass 📦</h3>
+                    <p class="mb-4">Jab aapka project bara hota hai, to aap saara code aik hi file mein nahi rakhte. Aap usay "Modules" mein baant dete hain. Isay "Modular Programming" kehte hain.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. The Import Logic -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Import Logic (Dosre ki Mehnat) 📥</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Python pehle "Current Directory" mein check karta hai, phir "Standard Library" mein, aur aakhir mein "Site-packages" (PIP) mein.</p>
+                            <ul class="text-sm list-disc ml-5 space-y-1">
+                                <li><code>import math</code>: Poori library uthao.</li>
+                                <li><code>from random import randint</code>: Sirf aik khaas auzaar uthao.</li>
+                                <li><code>import numpy as np</code>: Alias name (Nickname) dena taake kaam jaldi ho.</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. The Standard Library -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Standard Library (Battery Included) 🔋</h4>
+                            <p class="text-sm mb-2">Python "Batteries Included" language hai. Iska matlab hai bohot saare kaam ke modules pehle se andar hain.</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs mt-2">
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>os</code>: Folder/File handling.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>sys</code>: System settings.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>datetime</code>: Waqt aur Tareekh.</div>
+                                <div class="bg-indigo-50 dark:bg-slate-800 p-2 rounded"><code>json</code>: Data transfer.</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. PIP & PyPI -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. PIP (Dunya ka Store) 🛒</h4>
+                            <p class="text-sm mb-2"><b>PIP:</b> Python Package Index (PyPI) se bani banayi libraries download karne ka tool.</p>
+                            <p class="text-xs bg-slate-900 text-green-400 p-2 rounded font-mono">pip install requests</p>
+                        </div>
+
+                        <!-- 4. Virtual Environments -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">4. Virtual Env (Alag Alag Kamre) 🏠</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Programmers aik environment mein sab nahi daalte. Har project ka apna <code>venv</code> hota hai taake version clash na ho.</p>
+                            <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg border-l-4 border-indigo-500">
+                                <p class="text-xs font-bold mb-1">Creating Venv:</p>
+                                <code class="text-[10px] font-mono">python -m venv myenv</code><br>
+                                <p class="text-xs font-bold mt-2 mb-1">Activating (Windows):</p>
+                                <code class="text-[10px] font-mono">myenv\Scripts\activate</code>
+                            </div>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Using Standard Library\nimport math\nfrom datetime import datetime\n\nnow = datetime.now()\nprint(f\"Current Time: {now.strftime('%H:%M:%S')}\")\n\n# 2. Math Magic\nprint(f\"Square root of 144: {math.sqrt(144)}\")\n\n# 3. Random Example\nimport random as rd\nprint(f\"Random percentage: {rd.uniform(0, 100):.1f}%\")\n\n# 4. Pro Tip: __name__ check\nif __name__ == \"__main__\":\n    print(\"\\nYe script direct chal rahi hai!\")"
+            },
+
+            // ---------------------------------------------------------
+            // 🧱 MODULE 6: OOP (Object Oriented)
+            // ---------------------------------------------------------
+            oop_concepts: {
+                group: "🧱 OOP",
+                title: "Classes & Objects (Deep)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">OOP Masterclass (The Blueprint) 🧱</h3>
+                    <p class="mb-4">Object Oriented Programming (OOP) ka matlab hai code ko Real World ki tarah likhna. Har cheez aik "Object" hai jiski apni kuch properties aur kaam hote hain.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Class vs Object -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Class vs Object (Saancha vs Cheez) 🏗️</h4>
+                            <p class="text-sm mb-2"><b>Class:</b> Aik "Blueprint" ya "Naqsha" (Design). Jaise aik Mobile ka design.<br><b>Object:</b> Us design se bana hua asli Mobile jo aapke hath mein hai.</p>
+                            <p class="text-xs bg-indigo-50 dark:bg-indigo-900/10 p-2 rounded">Design aik hota hai (Class), magar mobiles hazaron ho sakte hain (Objects).</p>
+                        </div>
+
+                        <!-- 2. __init__ & self -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. __init__ & self (Birth & Identity) 🆔</h4>
+                            <p class="text-sm mb-2"><b>__init__:</b> Ye "Constructor" hai. Jab bhi naya object banta hai, ye khud-ba-khud chalta hai (Jaise baby paida hote hi rota hai).</p>
+                            <p class="text-sm"><b>self:</b> Ye Object ka apna naam ya reference hai. Ye batata hai ke "Ye meri apni property hai".</p>
+                        </div>
+
+                        <!-- 3. Pro Logic: Attributes & Methods -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Data & Actions ⚙️</h4>
+                            <p class="text-sm"><b>Attributes:</b> Variables jo object ki hulyat batate hain (Color, Brand).<br><b>Methods:</b> Functions jo object ke kaam batate hain (Drive, Stop).</p>
+                        </div>
+
+                    </div>
+                `,
+                code: "class Mobile:\n    # Constructor (Har mobile bante hi ye chalega)\n    def __init__(self, brand, model, price):\n        self.brand = brand   # Attribute\n        self.model = model   # Attribute\n        self.price = price\n\n    # Method (Mobile ka kaam)\n    def call(self, number):\n        return f\"{self.brand} {self.model} is calling {number}...\"\n\n# Objects (Asli Mobiles) banana\nmy_phone = Mobile(\"Apple\", \"iPhone 15\", 250000)\nyour_phone = Mobile(\"Samsung\", \"S23\", 230000)\n\nprint(my_phone.call(\"0312-XXXXXXX\"))\nprint(f\"Market Price: {your_phone.price}\")"
+            },
+            oop_principles: {
+                group: "🧱 OOP",
+                title: "The 4 Pillars (Wirasat & Parda)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">OOP Pillars (Asal Power) 🏛️</h3>
+                    <p class="mb-4">OOP in 4 khambon par khari hai. Inhein samajh liya to aap Architecture design karna seekh jayenge.</p>
+
+                    <div class="space-y-6">
+                        <!-- 1. Inheritance -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 text-lg">1. Inheritance (Wirasat) 🧬</h4>
+                            <p class="text-sm">Jab aik Class doosri Class ki khubiyan le le. Code repeat nahi karna parta. (Child class inherits from Parent class).</p>
+                        </div>
+
+                        <!-- 2. Encapsulation -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 text-lg">2. Encapsulation (Parda/Tijori) 🔒</h4>
+                            <p class="text-sm">Data ko private rakhna taake bahar se koi ghalat value na daal sakay. Python mein <code>__</code> (double underscore) use hota hai.</p>
+                        </div>
+
+                        <!-- 3. Polymorphism -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 text-lg">3. Polymorphism (Behroopia) 🎭</h4>
+                            <p class="text-sm">Aik hi naam wala kaam magar tareeqa alag. (Example: <code>speak()</code> function Dog ke liye "Woof" aur Cat ke liye "Meow").</p>
+                        </div>
+
+                        <!-- 4. Abstraction -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 text-lg">4. Abstraction (Zaroori Baat) 💡</h4>
+                            <p class="text-sm">Fuzool details chhupa kar sirf kaam ki cheez dikhana. (Jaise car chalanay ke liye Engine ki internal working jan-na zaroori nahi).</p>
+                        </div>
+                    </div>
+                `,
+                code: "# 1. Inheritance (Parent -> Child)\nclass Vehicle:\n    def fuel(self):\n        return \"Drinking Fuel...\"\n\nclass ElectricCar(Vehicle):\n    def fuel(self):\n        return \"Charging Battery... ⚡\"\n\n# 2. Encapsulation (Private Variable)\nclass ATM:\n    def __init__(self, pin):\n        self.__pin = pin # Private\n\n    def check_pin(self, attempt):\n        return self.__pin == attempt\n\n# 3. Polymorphism\ntesla = ElectricCar()\nprint(f\"Tesla info: {tesla.fuel()}\")\n\nbank = ATM(1234)\nprint(f\"Pin Check: {bank.check_pin(1234)}\")"
+            },
+
+            // ---------------------------------------------------------
+            // 🚀 MODULE 7: ADVANCED PRO
+            // ---------------------------------------------------------
+            adv_pro: {
+                group: "🚀 Advanced",
+                title: "Lambda & Generators (Pro)",
+                content: `
+                    <h3 class="text-3xl font-black mb-6">Advanced Pro Concepts 🚀</h3>
+                    <p class="mb-4">Ye wo techniques hain jo senior developers use karte hain code ko fast, chota, aur memory-efficient banane ke liye.</p>
+
+                    <div class="space-y-8">
+                        
+                        <!-- 1. Lambda Functions -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">1. Lambda (Anonymous Functions) ⚡</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Ye "Bina Naam" wale functions hote hain jo sirf aik line mein likhe jate hain. Inhein aksar tab use kiya jata hai jab aapko aik chota sa kaam sirf aik dafa karna ho.</p>
+                            <p class="text-sm border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 dark:bg-indigo-900/10"><b>Pro Use Case:</b> Sorting lists ya filtering data mein ye bohot kaam aate hain.</p>
+                            <code class="text-xs bg-slate-100 dark:bg-slate-900 p-2 rounded block font-mono mt-2">
+                                double = lambda x: x * 2
+                            </code>
+                        </div>
+
+                        <!-- 2. Generators & Yield -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">2. Generators (Memory Saver) 🧠</h4>
+                            <p class="text-sm mb-2"><b>Deep Logic:</b> Aam functions <code>return</code> use karke saara data aik sath wapas bhejte hain (jis se RAM full ho sakti hai). Generators <code>yield</code> use karte hain aur aik waqt mein <b>Sirf Aik</b> item dete hain.</p>
+                            <ul class="text-sm list-disc ml-5 space-y-1">
+                                <li><b>Lazy Evaluation:</b> Jab tak aap agla item nahi mangenge, ye calculate nahi karega.</li>
+                                <li><b>State Saving:</b> Ye yaad rakhta hai ke pichli dafa kahan ruka tha.</li>
+                            </ul>
+                        </div>
+
+                        <!-- 3. Pro Secret: Infinite Streams -->
+                        <div class="detail-box">
+                            <h4 class="font-bold text-indigo-600 mb-2 text-xl">3. Pro Secret: Infinite Streams 🌊</h4>
+                            <p class="text-sm">Generators se aap aisi lists bana sakte hain jo kabhi khatam na hon (e.g., infinite numbers), kyunke ye saari memory aik sath nahi letay.</p>
+                        </div>
+
+                    </div>
+                `,
+                code: "# 1. Lambda: Sorting Pro Technique\n# List of tuples: (Name, Marks)\nstudents = [(\"Ali\", 80), (\"Sara\", 95), (\"Asad\", 85)]\n# Marks ki buniyaad par sort karo\nstudents.sort(key=lambda s: s[1], reverse=True)\nprint(f\"Ranked Students: {students}\")\n\n# 2. Generator: Big Data Simulation\ndef big_data_stream(n):\n    for i in range(1, n + 1):\n        # Imagine yahan koi heavy calculation ho rahi hai\n        yield f\"Data Chunk {i}\"\n\nprint(\"\\n--- Generator Stream ---\")\nstream = big_data_stream(3)\nprint(next(stream))\nprint(next(stream))\n\n# 3. Looping over Generator\nprint(\"\\n--- Looping Remaining ---\")\nfor item in stream:\n    print(item)"
+            },
+        };
+
+        let pyodide = null;
+        let isDarkMode = false;
+        let currentLessonCode = "";
+
+        function buildNav() {
+            const container = document.getElementById('nav-container');
+            const grid = document.getElementById('home-grid');
+            const groups = {};
+
+            Object.keys(topics).forEach(key => {
+                const groupName = topics[key].group;
+                if (!groups[groupName]) groups[groupName] = [];
+                groups[groupName].push({ key, ...topics[key] });
+            });
+
+            let navHtml = '';
+            let gridHtml = '';
+            for (const group in groups) {
+                navHtml += `<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-6 mb-2 ml-3 border-b border-slate-100 dark:border-slate-800 pb-1">${group}</p>`;
+                groups[group].forEach(topic => {
+                    navHtml += `<button onclick="loadContent('${topic.key}')" class="w-full text-left p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> ${topic.title}</button>`;
+                    gridHtml += `<div onclick="loadContent('${topic.key}')" class="topic-card p-6 rounded-3xl cursor-pointer flex items-center gap-4 group">
+                        <div class="w-12 h-12 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 rounded-2xl flex items-center justify-center text-indigo-600 transition-all group-hover:bg-indigo-600 group-hover:text-white"><i class="fas fa-bolt text-sm"></i></div>
+                        <div><h4 class="font-bold text-sm">${topic.title}</h4><p class="text-[10px] text-slate-400">${topic.group}</p></div>
+                    </div>`;
+                });
+            }
+            container.innerHTML = navHtml;
+            grid.innerHTML = gridHtml;
+        }
+
+        async function init() {
+            buildNav();
+            try {
+                pyodide = await loadPyodide();
+                document.getElementById('status-dot').className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse';
+                document.getElementById('status-text').innerText = 'Python Engine Ready';
+            } catch (e) {
+                document.getElementById('status-text').innerText = 'Offline Mode';
+            }
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            icon.className = isDarkMode ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+            text.innerText = isDarkMode ? 'Light' : 'Dark';
+        }
+
+        function setActiveNav(id) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-indigo-600');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(id);
+            if (activeBtn) activeBtn.classList.replace('text-slate-400', 'text-indigo-600');
+        }
+
+        function goHome() {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('home-screen').classList.add('active');
+            setActiveNav('nav-home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openEditor() {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('editor-screen').classList.add('active');
+            setActiveNav('nav-editor');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openEditorFromLesson() {
+            openEditor();
+            document.getElementById('global-code-editor').value = currentLessonCode;
+        }
+
+        function clearEditor() {
+            document.getElementById('global-code-editor').value = "";
+            document.getElementById('global-output').innerText = "Terminal ready...";
+        }
+
+        function loadContent(topicId) {
+            const data = topics[topicId];
+            if (!data) return;
+            currentLessonCode = data.code || "";
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('lesson-screen').classList.add('active');
+            document.getElementById('lesson-body').innerHTML = data.content;
+            if (window.innerWidth < 1024) toggleSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setActiveNav('nav-home');
+        }
+
+        async function runGlobalCode() {
+            const code = document.getElementById('global-code-editor').value;
+            const output = document.getElementById('global-output');
+            if (!pyodide) { output.innerText = "Engine is still loading, please wait..."; return; }
+            output.innerText = ">>> Running Code...\n";
+            try {
+                pyodide.runPython(`import sys; import io; sys.stdout = io.StringIO();`);
+                await pyodide.runPythonAsync(code);
+                output.innerText = pyodide.runPython("sys.stdout.getvalue()") || "Success (No Output).";
+            } catch (err) {
+                output.innerText = "Error encountered:\n" + err.message;
+            }
+        }
+
+        function toggleSidebar(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('sidebar').classList.toggle('closed');
+        }
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtns = document.querySelectorAll('button[onclick="toggleSidebar()"]');
+
+            let clickedToggle = false;
+            toggleBtns.forEach(btn => {
+                if (btn.contains(e.target)) clickedToggle = true;
+            });
+
+            if (!sidebar.classList.contains('closed') && !sidebar.contains(e.target) && !clickedToggle) {
+                sidebar.classList.add('closed');
+            }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

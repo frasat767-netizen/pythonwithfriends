@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Mastery Roadmap: From Novice to Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #06b6d4;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0891b2;
+        }
+
+        /* Chart Container specific styles for responsiveness */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Max width to prevent stretching */
+            height: 300px;    /* Base height */
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px; /* Taller on desktop */
+                max-height: 400px;
+            }
+        }
+
+        /* Palette: "Neon Future" - Vibrant Cyan, Pink, Violet on Dark */
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent-cyan: #06b6d4;
+            --accent-pink: #ec4899;
+            --accent-violet: #8b5cf6;
+            --accent-amber: #f59e0b;
+        }
+        .text-white{
+            border: 2px solid #2995a85d;
+            border-radius: 15px;
+            background-color: #037b913d;
+            color: #0f172a;
+            padding: 10px;
+        }
+    </style>
+    <!-- 
+        Palette Used: "Neon Future" 
+        Background: Slate 900 (#0f172a)
+        Cards: Slate 800 (#1e293b)
+        Accents: Cyan-500 (#06b6d4), Pink-500 (#ec4899), Violet-500 (#8b5cf6), Amber-500 (#f59e0b)
+    -->
+    <!-- 
+        Source Material Analysis:
+        The roadmap is structured into 4 levels:
+        1. Basics (Syntax, Logic)
+        2. Intermediate (OOP, Tools)
+        3. Advanced (Internals, Concurrency)
+        4. Mastery (Specializations like Data, Web, AI)
+        
+        Plan:
+        - Intro: Hook user on Python's versatility.
+        - Section 1 (Basics): Doughnut Chart for topic distribution.
+        - Section 2 (Intermediate): Stacked Bar for OOP concepts.
+        - Section 3 (Advanced): Radar Chart for technical complexity.
+        - Section 4 (Mastery): Polar Area Chart for career paths.
+        - Conclusion: Encouragement.
+    -->
+    <!-- 
+        Charts Justification (NO SVG, NO Mermaid):
+        1. Basics: Doughnut Chart (Inform/Compare) - Shows composition of foundational skills.
+        2. Intermediate: Bar Chart (Compare) - Comparing complexity of OOP vs Functional patterns.
+        3. Advanced: Radar Chart (Relationships) - Mapping multi-faceted advanced skills.
+        4. Mastery: Polar Area Chart (Compare) - Visualizing different career domains.
+    -->
+</head>
+<body class="bg-slate-900 text-slate-50 font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Navigation / Header -->
+    <header class="fixed top-0 w-full bg-slate-900/90 backdrop-blur-sm z-50 border-b border-slate-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="index.html"><h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-400">
+                Python<span class="text-slate-100">With Friends</span>
+            </h1></a>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-slate-300">
+                <a href="#basics" class="hover:text-cyan-400 transition">Basics</a>
+                <a href="#intermediate" class="hover:text-cyan-400 transition">Intermediate</a>
+                <a href="#advanced" class="hover:text-cyan-400 transition">Advanced</a>
+                <a href="#mastery" class="hover:text-cyan-400 transition">Mastery</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+
+        <!-- Hero Section -->
+        <section class="text-center space-y-6">
+            <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight">
+                From <span class="text-cyan-400">Hello World</span> to <span class="text-pink-500">System Architect</span>
+            </h2>
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+                Python is one of the most versatile languages in the world. Whether you want to automate scripts, build web backends, or train neural networks, the journey starts here. This interactive infographic maps out the exact topics you need to cover to move from A to Z.
+            </p>
+            <div class="flex justify-center gap-4 pt-4">
+                <span class="px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-semibold text-cyan-400 shadow-sm">Frontend</span>
+                <span class="px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-semibold text-pink-400 shadow-sm">Backend</span>
+                <span class="px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-semibold text-amber-400 shadow-sm">Data Science</span>
+                <span class="px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-semibold text-violet-400 shadow-sm">AI/ML</span>
+            </div>
+        </section>
+
+        <!-- PHASE 1: BASICS -->
+        <section id="basics" class="scroll-mt-28">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-500 text-slate-900 font-bold">1</span>
+                        <h3 class="text-3xl font-bold text-white">The Foundation (Novice)</h3>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        Before building skyscrapers, you must lay a solid foundation. The "Novice" phase is all about understanding the syntax and logic of Python. You cannot skip these topics.
+                    </p>
+                    <ul class="space-y-3 text-slate-400">
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">▸</span> 
+                            <span><strong>Core Syntax:</strong> Variables, Data Types (Integers, Floats, Strings, Booleans).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">▸</span> 
+                            <span><strong>Control Flow:</strong> If/Else statements, For Loops, While Loops.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">▸</span> 
+                            <span><strong>Data Structures:</strong> Lists, Tuples, Sets, and Dictionaries (Hash Maps).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">▸</span> 
+                            <span><strong>Modularity:</strong> Writing Functions, Parameters, Return values, and basic Modules.</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+                    <h4 class="text-lg font-semibold text-slate-200 mb-4 text-center">Time Allocation for Basics</h4>
+                    <div class="chart-container">
+                        <canvas id="chartBasics"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2 italic">Based on typical curriculum focus.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHASE 2: INTERMEDIATE -->
+        <section id="intermediate" class="scroll-mt-28">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Visual First on Desktop for Variety -->
+                <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700 order-2 md:order-1">
+                    <h4 class="text-lg font-semibold text-slate-200 mb-4 text-center">Paradigm Complexity</h4>
+                    <div class="chart-container">
+                        <canvas id="chartIntermediate"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2 italic">Comparison of learning curves for key paradigms.</p>
+                </div>
+
+                <div class="space-y-6 order-1 md:order-2">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-pink-500 text-slate-900 font-bold">2</span>
+                        <h3 class="text-3xl font-bold text-white">The Core (Apprentice)</h3>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        Here you transition from writing code that "works" to code that is organized, reusable, and robust. This phase introduces Object-Oriented Programming (OOP) and essential tools.
+                    </p>
+                    
+                    <!-- Tailwind Structured Diagram for OOP -->
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div class="border-l-4 border-pink-500 pl-4 py-2 bg-slate-800/50 rounded-r-lg">
+                            <h5 class="text-pink-400 font-bold text-sm">OOP</h5>
+                            <p class="text-slate-400 text-xs">Classes, Objects, Inheritance, Polymorphism.</p>
+                        </div>
+                        <div class="border-l-4 border-pink-500 pl-4 py-2 bg-slate-800/50 rounded-r-lg">
+                            <h5 class="text-pink-400 font-bold text-sm">Error Handling</h5>
+                            <p class="text-slate-400 text-xs">Try, Except, Finally, Custom Exceptions.</p>
+                        </div>
+                        <div class="border-l-4 border-pink-500 pl-4 py-2 bg-slate-800/50 rounded-r-lg">
+                            <h5 class="text-pink-400 font-bold text-sm">File I/O</h5>
+                            <p class="text-slate-400 text-xs">Reading/Writing text, CSV, and JSON files.</p>
+                        </div>
+                        <div class="border-l-4 border-pink-500 pl-4 py-2 bg-slate-800/50 rounded-r-lg">
+                            <h5 class="text-pink-400 font-bold text-sm">Functional</h5>
+                            <p class="text-slate-400 text-xs">Lambdas, Map, Filter, List Comprehensions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHASE 3: ADVANCED -->
+        <section id="advanced" class="scroll-mt-28">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-violet-500 text-slate-900 font-bold">3</span>
+                        <h3 class="text-3xl font-bold text-white">Deep Dive (Pro)</h3>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        The "Pro" level distinguishes a coder from a software engineer. This involves understanding Python's internals, memory management, and writing high-performance, concurrent code.
+                    </p>
+                    <div class="space-y-4">
+                         <div class="p-4 bg-slate-800 border border-slate-700 rounded-lg">
+                            <h4 class="font-bold text-violet-400 mb-2">Key Topics:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">Decorators</span>
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">Generators & Iterators</span>
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">Context Managers</span>
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">Threading & Multiprocessing</span>
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">AsyncIO</span>
+                                <span class="bg-violet-900/50 text-violet-200 px-2 py-1 rounded text-xs">Metaclasses</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400">
+                            <strong>Why this matters:</strong> You aren't just writing logic; you are managing system resources and optimizing execution time.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+                    <h4 class="text-lg font-semibold text-slate-200 mb-4 text-center">Technical Competency Radar</h4>
+                    <div class="chart-container">
+                        <canvas id="chartAdvanced"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2 italic">Skill depth required for Senior roles.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHASE 4: MASTERY / SPECIALIZATION -->
+        <section id="mastery" class="scroll-mt-28 mb-16">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500 text-slate-900 font-bold mb-4">4</div>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">Mastery & Specialization</h3>
+                    <p class="text-slate-400 mt-4 max-w-2xl mx-auto">
+                        A "Master" in Python usually specializes in one domain while maintaining deep core knowledge. At this level, you are learning libraries and frameworks built *on top* of Python.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container">
+                        <canvas id="chartMastery"></canvas>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Card 1: Data Science -->
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 hover:border-amber-500 transition duration-300">
+                            <h4 class="text-amber-400 font-bold mb-2">Data Science & AI</h4>
+                            <p class="text-sm text-slate-400 mb-2">Analysis, Visualization, Machine Learning.</p>
+                            <div class="text-xs text-slate-500 font-mono">Pandas, NumPy, Matplotlib, PyTorch, TensorFlow</div>
+                        </div>
+
+                        <!-- Card 2: Web Dev -->
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 hover:border-cyan-500 transition duration-300">
+                            <h4 class="text-cyan-400 font-bold mb-2">Web Development</h4>
+                            <p class="text-sm text-slate-400 mb-2">Backend APIs, Server-side rendering.</p>
+                            <div class="text-xs text-slate-500 font-mono">Django, Flask, FastAPI, Celery, SQLAlc</div>
+                        </div>
+
+                        <!-- Card 3: Automation -->
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 hover:border-pink-500 transition duration-300">
+                            <h4 class="text-pink-400 font-bold mb-2">Automation & Scripting</h4>
+                            <p class="text-sm text-slate-400 mb-2">DevOps, Web Scraping, Testing.</p>
+                            <div class="text-xs text-slate-500 font-mono">Selenium, Scrapy, PyTest, Ansible, Docker SDK</div>
+                        </div>
+
+                        <!-- Card 4: GUI/Desktop -->
+                        <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 hover:border-violet-500 transition duration-300">
+                            <h4 class="text-violet-400 font-bold mb-2">System & GUI</h4>
+                            <p class="text-sm text-slate-400 mb-2">Desktop apps and hardware interaction.</p>
+                            <div class="text-xs text-slate-500 font-mono">PyQt, Tkinter, Kivy, Raspberry Pi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <footer class="text-center py-10 border-t border-slate-800">
+            <a href="index_course.html"><h4 class="text-2xl font-bold text-white mb-4">Click To Start Now</h4></a>
+            <p class="text-slate-400 mb-6">Mastery is a marathon, not a sprint. Pick a path and code daily.</p>
+            <!-- <div class="text-sm text-slate-600">Generated by Canvas Infographics</div> -->
+        </footer>
+
+    </main>
+
+    <script>
+        // -------------------------------------------------------
+        // LABEL WRAPPING LOGIC (CRITICAL REQUIREMENT)
+        // -------------------------------------------------------
+        function wrapLabel(label) {
+            const MAX_LENGTH = 16;
+            if (label.length <= MAX_LENGTH) return label;
+            
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= MAX_LENGTH) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // -------------------------------------------------------
+        // TOOLTIP CONFIGURATION (CRITICAL REQUIREMENT)
+        // -------------------------------------------------------
+        const tooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // -------------------------------------------------------
+        // CHART 1: BASICS - DOUGHNUT
+        // -------------------------------------------------------
+        const ctxBasics = document.getElementById('chartBasics').getContext('2d');
+        const rawLabelsBasics = ['Variables & Syntax', 'Control Flow (Loops)', 'Data Structures', 'Functions & Modules', 'Basic I/O'];
+        const processedLabelsBasics = rawLabelsBasics.map(wrapLabel);
+
+        new Chart(ctxBasics, {
+            type: 'doughnut',
+            data: {
+                labels: processedLabelsBasics,
+                datasets: [{
+                    data: [20, 25, 30, 15, 10],
+                    backgroundColor: [
+                        '#06b6d4', // Cyan
+                        '#22d3ee',
+                        '#67e8f9',
+                        '#0891b2',
+                        '#155e75'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#cbd5e1', font: { size: 11 } }
+                    },
+                    tooltip: tooltipConfig,
+                    title: {
+                        display: true,
+                        text: 'Learning Focus Distribution',
+                        color: '#f8fafc'
+                    }
+                }
+            }
+        });
+
+        // -------------------------------------------------------
+        // CHART 2: INTERMEDIATE - BAR CHART
+        // -------------------------------------------------------
+        const ctxIntermediate = document.getElementById('chartIntermediate').getContext('2d');
+        const rawLabelsInter = ['Procedural Logic', 'Object Oriented', 'Functional Style', 'Error Handling', 'Ext Libraries'];
+        const processedLabelsInter = rawLabelsInter.map(wrapLabel);
+
+        new Chart(ctxIntermediate, {
+            type: 'bar',
+            data: {
+                labels: processedLabelsInter,
+                datasets: [{
+                    label: 'Conceptual Difficulty (1-10)',
+                    data: [3, 8, 7, 5, 6],
+                    backgroundColor: '#ec4899', // Pink
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipConfig
+                }
+            }
+        });
+
+        // -------------------------------------------------------
+        // CHART 3: ADVANCED - RADAR CHART
+        // -------------------------------------------------------
+        const ctxAdvanced = document.getElementById('chartAdvanced').getContext('2d');
+        const rawLabelsAdv = ['Concurrency', 'Memory Mgmt', 'Metaprogramming', 'System Design', 'Testing/QA', 'Security'];
+        const processedLabelsAdv = rawLabelsAdv.map(wrapLabel);
+
+        new Chart(ctxAdvanced, {
+            type: 'radar',
+            data: {
+                labels: processedLabelsAdv,
+                datasets: [{
+                    label: 'Senior Developer Skill Profile',
+                    data: [8, 7, 6, 9, 9, 7],
+                    fill: true,
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)', // Violet transparent
+                    borderColor: '#8b5cf6',
+                    pointBackgroundColor: '#8b5cf6',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#8b5cf6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#334155' },
+                        grid: { color: '#334155' },
+                        pointLabels: { color: '#cbd5e1', font: { size: 11 } },
+                        ticks: { display: false, backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipConfig
+                }
+            }
+        });
+
+        // -------------------------------------------------------
+        // CHART 4: MASTERY - POLAR AREA
+        // -------------------------------------------------------
+        const ctxMastery = document.getElementById('chartMastery').getContext('2d');
+        const rawLabelsMastery = ['Web Development', 'Data Science', 'AI & Machine Learning', 'DevOps/Scripts', 'Embedded/IoT'];
+        const processedLabelsMastery = rawLabelsMastery.map(wrapLabel);
+
+        new Chart(ctxMastery, {
+            type: 'polarArea',
+            data: {
+                labels: processedLabelsMastery,
+                datasets: [{
+                    label: 'Market Demand Index',
+                    data: [90, 95, 85, 80, 60],
+                    backgroundColor: [
+                        'rgba(6, 182, 212, 0.7)',  // Cyan
+                        'rgba(245, 158, 11, 0.7)', // Amber
+                        'rgba(236, 72, 153, 0.7)', // Pink
+                        'rgba(139, 92, 246, 0.7)', // Violet
+                        'rgba(16, 185, 129, 0.7)'  // Emerald
+                    ],
+                    borderWidth: 1,
+                    borderColor: '#1e293b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        grid: { color: '#334155' },
+                        ticks: { display: false, backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#cbd5e1', padding: 20 }
+                    },
+                    tooltip: tooltipConfig
+                }
+            }
+        });
+    </script>
+</body>
+</html>
